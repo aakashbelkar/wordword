@@ -83,6 +83,8 @@ return <div className="p-10 text-xl">Word not found</div>
 
 function getMeaning(){
 
+if(!word) return ""
+
 if(language==="hi") return word.meaning_hi
 if(language==="mr") return word.meaning_mr
 return word.meaning_en
