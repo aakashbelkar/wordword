@@ -81,11 +81,15 @@ export default function WordClient() {
     return word?.meaning_en
   }
 
-  function getExample() {
-    if (language === "hi") return word?.example_hi
-    if (language === "mr") return word?.example_mr
-    return word?.example_en
-  }
+function getExample(){
+
+if(!word) return ""
+
+if(language==="hi") return word.example_hi
+if(language==="mr") return word.example_mr
+return word.example_en
+
+}
 
   function getStory() {
     if (language === "hi") return word?.story_hi
