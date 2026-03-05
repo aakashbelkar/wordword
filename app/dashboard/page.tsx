@@ -1,3 +1,5 @@
+"use client"
+
 export const metadata = {
 robots: {
 index: false,
@@ -5,7 +7,7 @@ follow: false
 }
 }
 
-"use client"
+
 
 import { useEffect, useState } from "react"
 import { supabase } from "@/lib/supabase"
