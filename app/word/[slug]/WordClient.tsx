@@ -75,7 +75,7 @@ shuffled[2]
 
 setOptions(quizOptions)
 
-},[language,slug])
+},[language,slug,word])
 
 if(!word){
 return <div className="p-10 text-xl">Word not found</div>
