@@ -27,7 +27,7 @@ setLanguage(savedLang)
 
 },[])
 
-const word = words.find(w=>w.slug===slug)
+const word = words.find(w=>w.slug===slug)!
 
 const related = words
 .filter(w => w.slug !== slug)
@@ -102,6 +102,8 @@ return word.example_en
 }
 
 function getStory(){
+
+if(!word) return ""
 
 if(language==="hi") return word.story_hi
 if(language==="mr") return word.story_mr
