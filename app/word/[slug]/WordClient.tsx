@@ -23,7 +23,7 @@ export default function WordClient() {
     }
   }, [])
 
-  const word = words.find(w => w.slug === slug)
+const word = words.find(w => w.slug === slug)!
 
   // 1. EARLY RETURN: This tells TypeScript 'word' exists for everything below this block.
   if (!word) {
@@ -82,8 +82,6 @@ export default function WordClient() {
   }
 
 function getExample(){
-
-if(!word) return ""
 
 if(language==="hi") return word.example_hi
 if(language==="mr") return word.example_mr
