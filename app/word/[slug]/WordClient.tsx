@@ -83,9 +83,9 @@ const word = words.find(w => w.slug === slug)!
 
 function getExample(){
 
-if(language==="hi") return word.example_hi
-if(language==="mr") return word.example_mr
-return word.example_en
+if(language==="hi") return word?.example_hi
+if(language==="mr") return word?.example_mr
+return word?.example_en
 
 }
 
