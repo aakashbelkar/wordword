@@ -29,7 +29,7 @@ if (!foundWord) {
   return <div className="p-10 text-xl text-center">Word not found</div>
 }
 
-const word = foundWord
+const word = foundWord as (typeof words)[number]
 
   const related = words
     .filter(w => w.slug !== slug)
