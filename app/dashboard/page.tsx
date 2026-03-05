@@ -5,7 +5,7 @@ import { supabase } from "@/lib/supabase"
 import words from "@/data/words.json"
 import Link from "next/link"
 
-export default function Dashboard() {
+export default function DashboardPage() {
 
 const [mastered,setMastered] = useState(0)
 const [weak,setWeak] = useState(0)
