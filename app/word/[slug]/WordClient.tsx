@@ -23,12 +23,13 @@ export default function WordClient() {
     }
   }, [])
 
-const word = words.find(w => w.slug === slug)!
+const foundWord = words.find(w => w.slug === slug)
 
-  // 1. EARLY RETURN: This tells TypeScript 'word' exists for everything below this block.
-  if (!word) {
-    return <div className="p-10 text-xl text-center">Word not found</div>
-  }
+if (!foundWord) {
+  return <div className="p-10 text-xl text-center">Word not found</div>
+}
+
+const word = foundWord
 
   const related = words
     .filter(w => w.slug !== slug)
@@ -72,7 +73,7 @@ const word = words.find(w => w.slug === slug)!
     ].sort(() => 0.5 - Math.random())
 
     setOptions(quizOptions)
-  }, [language, slug, word])
+}, [language, slug])
 
   // HELPER FUNCTIONS (Now safe because 'word' is guaranteed to exist here)
   function getMeaning() {
