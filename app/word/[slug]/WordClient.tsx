@@ -23,13 +23,11 @@ export default function WordClient() {
     }
   }, [])
 
-const foundWord = words.find(w => w.slug === slug)
+const word = words.find(w => w.slug === slug)
 
-if (!foundWord) {
+if (!word) {
   return <div className="p-10 text-xl text-center">Word not found</div>
 }
-
-const word = foundWord as (typeof words)[number]
 
   const related = words
     .filter(w => w.slug !== slug)
