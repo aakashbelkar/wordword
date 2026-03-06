@@ -113,15 +113,15 @@ setStatus(type)
 
 return (
 
-  <div
-className={`bg-white border rounded-xl p-6 shadow-sm transition
-${status === "mastered" ? "bg-green-50 border-green-300" : ""}
-${status === "weak" ? "bg-red-50 border-red-300" : ""}
+<div
+className={`border rounded-xl p-6 shadow-md bg-white transition
+${status === "mastered" ? "bg-green-50 border-green-200" : ""}
+${status === "weak" ? "bg-red-50 border-red-200" : ""}
 `}
 >
 
 {/* WORD */}
-<h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+<h2 className="text-2xl font-bold text-gray-900 mb-2">
 {word}
 </h2>
 
@@ -141,13 +141,13 @@ Needs Practice
 
 {/* MEANING */}
 
-<p className="text-gray-700 dark:text-gray-300 mb-2">
+<p className="text-gray-800">
 <span className="font-semibold">Meaning:</span> {meaning}
 </p>
 
 {/* EXAMPLE */}
 
-<p className="text-gray-600 dark:text-gray-400 text-sm mb-4">
+<p className="text-gray-600 mb-3">
 <span className="font-semibold">Example:</span> {example}
 </p>
 
