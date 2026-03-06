@@ -48,7 +48,7 @@ children,
 children: React.ReactNode
 }) {
 return (
-<html lang="en" className="light" suppressHydrationWarning>
+<html lang="en">
 <body className={`${comfortaa.className} bg-white text-gray-900`}>
 
 <Header />
