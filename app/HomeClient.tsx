@@ -40,7 +40,7 @@ const visibleWords = filtered.slice(start, end)
 
 const totalPages = Math.ceil(filtered.length / wordsPerPage)
 
-const alphabet = "abcdefghijklmnopqrstuvwxyz".split("")
+
 
 function getMeaning(word: any) {
 if (language === "hi") return word.meaning_hi
@@ -68,22 +68,6 @@ setPage={setPage}
 language={language}
 setLanguage={setLanguage}
 />
-
-<div className="flex flex-wrap gap-2 mt-6 justify-center">
-
-{alphabet.map((letter) => (
-
-<Link
-key={letter}
-href={`/words/${letter}`}
-className="px-3 py-1 border rounded hover:bg-gray-100"
->
-{letter.toUpperCase()}
-</Link>
-
-))}
-
-</div>
 
 <div className="grid gap-6 mt-6">
 

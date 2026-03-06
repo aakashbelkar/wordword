@@ -4,11 +4,12 @@ import Link from "next/link"
 import { supabase } from "@/lib/supabase"
 import { useEffect, useState } from "react"
 
-export default function Header() {
+export default function Header(){
 
 const [user,setUser] = useState<any>(null)
+const [menuOpen,setMenuOpen] = useState(false)
 
-useEffect(() => {
+useEffect(()=>{
 
 async function loadUser(){
 const { data } = await supabase.auth.getUser()
@@ -30,45 +31,32 @@ await supabase.auth.signOut()
 location.reload()
 }
 
-return (
+return(
 
 <header className="sticky top-0 z-50 bg-white border-b">
 
 <div className="max-w-5xl mx-auto flex items-center justify-between px-4 py-3">
 
-<Link href="/" className="text-xl font-bold tracking-tight">
+<Link href="/" className="text-xl font-bold">
 WordWord
 </Link>
 
-<div className="flex items-center gap-4 text-sm">
+{/* Desktop Menu */}
+
+<div className="hidden md:flex items-center gap-4 text-sm">
 
 {user && (
-
 <>
-
-<Link
-href="/review"
-className="hover:text-blue-600 transition"
->
-Review
-</Link>
-
-<Link
-href="/dashboard"
-className="hover:text-blue-600 transition"
->
-Dashboard
-</Link>
-
+<Link href="/review">Review</Link>
+<Link href="/dashboard">Dashboard</Link>
 </>
-
 )}
 
 {user ? (
 
 <button
 onClick={logout}
-className="px-3 py-1.5 bg-black text-white rounded-lg text-sm hover:bg-gray-800"
+className="px-3 py-1 bg-black text-white rounded-lg"
 >
 Logout
 </button>
@@ -77,7 +65,7 @@ Logout
 
 <button
 onClick={login}
-className="px-3 py-1.5 bg-black text-white rounded-lg text-sm hover:bg-gray-800"
+className="px-3 py-1 bg-black text-white rounded-lg"
 >
 Login
 </button>
@@ -86,7 +74,58 @@ Login
 
 </div>
 
+{/* Mobile Hamburger */}
+
+<button
+onClick={()=>setMenuOpen(!menuOpen)}
+className="md:hidden text-2xl"
+>
+☰
+</button>
+
 </div>
+
+{/* Mobile Menu */}
+
+{menuOpen && (
+
+<div className="md:hidden border-t px-4 py-3 space-y-3">
+
+{user && (
+<>
+<Link href="/review" className="block">
+Review
+</Link>
+
+<Link href="/dashboard" className="block">
+Dashboard
+</Link>
+</>
+)}
+
+{user ? (
+
+<button
+onClick={logout}
+className="block text-left w-full"
+>
+Logout
+</button>
+
+) : (
+
+<button
+onClick={login}
+className="block text-left w-full"
+>
+Login
+</button>
+
+)}
+
+</div>
+
+)}
 
 </header>
 

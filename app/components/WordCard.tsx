@@ -113,7 +113,12 @@ setStatus(type)
 
 return (
 
-<div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-2xl p-6 shadow-sm hover:shadow-md transition">
+  <div
+className={`bg-white border rounded-xl p-6 shadow-sm transition
+${status === "mastered" ? "bg-green-50 border-green-300" : ""}
+${status === "weak" ? "bg-red-50 border-red-300" : ""}
+`}
+>
 
 {/* WORD */}
 <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
@@ -148,28 +153,32 @@ Needs Practice
 
 {/* BUTTONS */}
 
-<div className="flex flex-wrap gap-3">
+<div className="flex items-center justify-between mt-4 text-sm">
 
 <Link
 href={`/word/${slug}?lang=${language}`}
-className="px-4 py-2 bg-black text-white rounded-lg text-sm hover:opacity-90"
+className="text-blue-600 hover:underline font-medium"
 >
-Learn More
+Learn more →
 </Link>
+
+<div className="flex gap-2">
 
 <button
 onClick={() => handleClick("mastered")}
-className="px-4 py-2 rounded-lg text-sm bg-green-600 text-white hover:bg-green-700"
+className="px-3 py-1 rounded-md border hover:bg-green-50"
 >
-Mastered
+✓
 </button>
 
 <button
 onClick={() => handleClick("weak")}
-className="px-4 py-2 rounded-lg text-sm bg-red-600 text-white hover:bg-red-700"
+className="px-3 py-1 rounded-md border hover:bg-red-50"
 >
-Weak
+!
 </button>
+
+</div>
 
 </div>
 
