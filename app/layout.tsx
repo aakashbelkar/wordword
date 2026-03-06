@@ -1,6 +1,7 @@
 import "./globals.css"
 import { Comfortaa } from "next/font/google"
 import Header from "./components/Header"
+import words from "@/data/words.json"
 
 const comfortaa = Comfortaa({
 subsets: ["latin"],
@@ -52,7 +53,21 @@ return (
 
 <Header />
 
+<main>
 {children}
+</main>
+
+<footer className="mt-20 border-t py-8 text-center text-sm text-gray-600">
+
+<p>
+Made with ❤️ in Bharat
+</p>
+
+<p className="mt-1">
+by Aakash Belkar
+</p>
+
+</footer>
 
 </body>
 </html>

@@ -56,10 +56,6 @@ return (
 
 <div className="max-w-4xl mx-auto p-6">
 
-<h1 className="text-3xl font-bold mb-6">
-WordWord.App
-</h1>
-
 <Link
 href="/review"
 className="inline-block mb-4 px-4 py-2 bg-blue-600 text-white rounded"
