@@ -27,6 +27,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-export default function Page() {
-  return <WordClient />
+export default async function Page({ params }: Props) {
+
+  const { slug } = await params
+
+  return <WordClient slug={slug} />
+
 }

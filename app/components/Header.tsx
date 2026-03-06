@@ -1,91 +1,95 @@
 "use client"
 
-import { useEffect, useState } from "react"
 import Link from "next/link"
 import { supabase } from "@/lib/supabase"
+import { useEffect, useState } from "react"
 
 export default function Header() {
 
-const [open, setOpen] = useState(false)
-const [user, setUser] = useState<any>(null)
+const [user,setUser] = useState<any>(null)
 
 useEffect(() => {
 
-supabase.auth.getUser().then(({ data }) => {
+async function loadUser(){
+const { data } = await supabase.auth.getUser()
 setUser(data.user)
-})
+}
 
-}, [])
+loadUser()
 
-async function login() {
+},[])
+
+async function login(){
 await supabase.auth.signInWithOAuth({
-provider: "google",
+provider:"google"
 })
 }
 
-async function logout() {
+async function logout(){
 await supabase.auth.signOut()
 location.reload()
 }
 
 return (
 
-<header className="border-b bg-white">
+<header className="sticky top-0 z-50 bg-white border-b">
 
-<div className="max-w-5xl mx-auto px-4 py-4 flex justify-between items-center">
+<div className="max-w-5xl mx-auto flex items-center justify-between px-4 py-3">
 
-<Link href="/" className="text-2xl font-bold">
+<Link href="/" className="text-xl font-bold tracking-tight">
 WordWord
 </Link>
 
-<button
-onClick={() => setOpen(!open)}
-className="text-2xl"
->
-☰
-</button>
-
-</div>
-
-{open && (
-
-<div className="border-t bg-gray-50">
-
-<div className="max-w-5xl mx-auto px-4 py-4 flex flex-col gap-3">
-
-{!user && (
-
-<button onClick={login}>
-Login with Google
-</button>
-
-)}
+<div className="flex items-center gap-4 text-sm">
 
 {user && (
 
 <>
-<p className="text-sm text-gray-600">
-{user.email}
-</p>
 
-<Link href="/dashboard">
+<Link
+href="/review"
+className="hover:text-blue-600 transition"
+>
+Review
+</Link>
+
+<Link
+href="/dashboard"
+className="hover:text-blue-600 transition"
+>
 Dashboard
 </Link>
 
-<button onClick={logout}>
-Logout
-</button>
 </>
 
 )}
 
-</div>
+{user ? (
 
-</div>
+<button
+onClick={logout}
+className="px-3 py-1.5 bg-black text-white rounded-lg text-sm hover:bg-gray-800"
+>
+Logout
+</button>
+
+) : (
+
+<button
+onClick={login}
+className="px-3 py-1.5 bg-black text-white rounded-lg text-sm hover:bg-gray-800"
+>
+Login
+</button>
 
 )}
+
+</div>
+
+</div>
 
 </header>
 
 )
+
 }

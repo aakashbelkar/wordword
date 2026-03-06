@@ -113,44 +113,60 @@ setStatus(type)
 
 return (
 
-<div
-className={`border rounded-xl p-6 shadow-sm transition
-${status === "mastered" ? "bg-green-100" : ""}
-${status === "weak" ? "bg-red-100" : ""}
-`}
->
+<div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-2xl p-6 shadow-sm hover:shadow-md transition">
 
-<h2 className="text-2xl font-semibold mb-2">
+{/* WORD */}
+<h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
 {word}
 </h2>
 
-<p className="text-gray-700">
-Meaning: {meaning}
+{/* STATUS BADGE */}
+
+{status === "mastered" && (
+<span className="inline-block text-xs px-3 py-1 bg-green-100 text-green-700 rounded-full mb-3">
+Mastered
+</span>
+)}
+
+{status === "weak" && (
+<span className="inline-block text-xs px-3 py-1 bg-red-100 text-red-700 rounded-full mb-3">
+Needs Practice
+</span>
+)}
+
+{/* MEANING */}
+
+<p className="text-gray-700 dark:text-gray-300 mb-2">
+<span className="font-semibold">Meaning:</span> {meaning}
 </p>
 
-<p className="text-gray-700 mb-3">
-Example: {example}
+{/* EXAMPLE */}
+
+<p className="text-gray-600 dark:text-gray-400 text-sm mb-4">
+<span className="font-semibold">Example:</span> {example}
 </p>
 
-<div className="flex gap-3 mt-3">
+{/* BUTTONS */}
+
+<div className="flex flex-wrap gap-3">
 
 <Link
 href={`/word/${slug}?lang=${language}`}
-className="px-4 py-2 bg-black text-white rounded-lg"
+className="px-4 py-2 bg-black text-white rounded-lg text-sm hover:opacity-90"
 >
-More
+Learn More
 </Link>
 
 <button
 onClick={() => handleClick("mastered")}
-className="px-4 py-2 rounded-lg bg-gray-500 text-white"
+className="px-4 py-2 rounded-lg text-sm bg-green-600 text-white hover:bg-green-700"
 >
 Mastered
 </button>
 
 <button
 onClick={() => handleClick("weak")}
-className="px-4 py-2 rounded-lg bg-gray-500 text-white"
+className="px-4 py-2 rounded-lg text-sm bg-red-600 text-white hover:bg-red-700"
 >
 Weak
 </button>

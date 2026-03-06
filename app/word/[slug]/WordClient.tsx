@@ -3,12 +3,13 @@
 import words from "@/data/words.json"
 import Image from "next/image"
 import { useEffect, useState } from "react"
-import { useParams } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 
-export default function WordClient() {
-  const params = useParams()
-  const slug = params.slug as string
+type Props = {
+  slug: string
+}
+
+export default function WordClient({ slug }: Props) {
 
   const [language, setLanguage] = useState("en")
   const [options, setOptions] = useState<string[]>([])
@@ -146,9 +147,17 @@ return word?.example_en
         <div className="space-y-3 text-lg">
           <p><strong>Meaning:</strong> {getMeaning()}</p>
           <p><strong>Example:</strong> {getExample()}</p>
-          <p className="mt-6 leading-relaxed italic text-gray-700">
-            {getStory()}
-          </p>
+          <div className="mt-10 bg-blue-50 border border-blue-100 rounded-xl p-6">
+
+<h3 className="text-xl font-semibold mb-3 text-blue-900">
+Story
+</h3>
+
+<p className="leading-relaxed text-gray-800 text-lg">
+{getStory()}
+</p>
+
+</div>
         </div>
 
         <div className="mt-10 border-t pt-8">

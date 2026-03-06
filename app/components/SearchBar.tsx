@@ -2,57 +2,35 @@
 
 import { useState } from "react"
 
-export default function SearchBar({ words, setFiltered, setPage }: any) {
+export default function SearchBar({ words,setFiltered,setPage }:any){
 
-const [query, setQuery] = useState("")
+const [query,setQuery] = useState("")
 
-function handleSearch(value: string) {
+function handleSearch(e:any){
 
+const value = e.target.value
 setQuery(value)
 
-const result = words.filter((w: any) =>
+const filtered = words.filter((w:any)=>
 w.word.toLowerCase().includes(value.toLowerCase())
 )
 
-setFiltered(result)
-
-setPage(1) // reset pagination when searching
-}
-
-function clearSearch() {
-
-setQuery("")
-
-setFiltered(words)
-
+setFiltered(filtered)
 setPage(1)
 
 }
 
 return (
 
-<div className="relative">
+<div className="mt-6">
 
 <input
 type="text"
 value={query}
-onChange={(e) => handleSearch(e.target.value)}
-placeholder="Search words..."
-className="w-full border rounded-xl p-3"
+onChange={handleSearch}
+placeholder="Search vocabulary..."
+className="w-full p-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-black"
 />
-
-{query && (
-
-<button
-onClick={clearSearch}
-className="absolute right-3 top-3 text-gray-500"
->
-
-✕
-
-</button>
-
-)}
 
 </div>
 
