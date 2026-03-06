@@ -48,7 +48,7 @@ children,
 children: React.ReactNode
 }) {
 return (
-<html lang="en">
+<html lang="en" className="light">
 <body className={comfortaa.className}>
 
 <Header />
