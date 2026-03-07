@@ -4,35 +4,35 @@ export default function ReviewPage() {
 
 return (
 
-<div className="max-w-4xl mx-auto p-6">
+<div>
 
-<h1 className="text-3xl font-bold mb-6 text-center">
+<h1 className="text-4xl font-bold text-center mb-10">
 Review Words
 </h1>
 
-<div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+<div className="grid md:grid-cols-2 gap-8">
 
 <Link
 href="/review/weak"
-className="p-6 border rounded-2xl shadow-sm hover:shadow-md transition bg-red-50"
+className="p-8 border rounded-2xl bg-red-50 hover:shadow-md transition"
 >
 
-<h2 className="text-xl font-semibold mb-2">
+<h2 className="text-2xl font-semibold mb-2">
 Review Weak Words
 </h2>
 
 <p className="text-gray-600">
-Practice words you marked as weak.
+Practice vocabulary you marked as weak.
 </p>
 
 </Link>
 
 <Link
 href="/review/mastered"
-className="p-6 border rounded-2xl shadow-sm hover:shadow-md transition bg-green-50"
+className="p-8 border rounded-2xl bg-green-50 hover:shadow-md transition"
 >
 
-<h2 className="text-xl font-semibold mb-2">
+<h2 className="text-2xl font-semibold mb-2">
 Review Mastered Words
 </h2>
 

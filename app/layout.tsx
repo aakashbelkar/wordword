@@ -4,62 +4,44 @@ import Header from "./components/Header"
 import Footer from "./components/Footer"
 
 const comfortaa = Comfortaa({
-subsets: ["latin"],
+  subsets: ["latin"],
 })
 
 export const metadata = {
-metadataBase: new URL("https://wordword.app"),
+  metadataBase: new URL("https://wordword.app"),
 
-title: {
-default: "WordWord — Learn English Vocabulary with Stories",
-template: "%s | WordWord"
-},
+  title: {
+    default: "WordWord — Learn English Vocabulary with Stories",
+    template: "%s | WordWord",
+  },
 
-description:
-"Learn English vocabulary through stories in Hindi and Marathi. Improve vocabulary with examples, images and quizzes.",
+  description:
+    "Learn English vocabulary through stories in Hindi and Marathi. Improve vocabulary with examples, images and quizzes.",
 
-keywords: [
-"english vocabulary",
-"learn english words",
-"vocabulary stories",
-"english words with meaning",
-"english words hindi meaning",
-"english words marathi meaning"
-],
-
-openGraph: {
-title: "WordWord",
-description:
-"Learn English vocabulary through stories in Hindi and Marathi.",
-url: "https://wordword.app",
-siteName: "WordWord",
-type: "website"
-},
-
-robots: {
-index: true,
-follow: true
-}
+  robots: {
+    index: true,
+    follow: true,
+  },
 }
 
 export default function RootLayout({
-children,
+  children,
 }: {
-children: React.ReactNode
+  children: React.ReactNode
 }) {
-return (
-<html lang="en">
-<body className={`${comfortaa.className} bg-white text-gray-900`}>
+  return (
+    <html lang="en">
+      <body
+        className={`${comfortaa.className} bg-gray-50 text-gray-900`}
+      >
+        <Header />
 
-<Header />
+        <main className="min-h-screen max-w-5xl mx-auto px-4 py-10">
+          {children}
+        </main>
 
-<main>
-{children}
-</main>
-
-<Footer />
-
-</body>
-</html>
-)
+        <Footer />
+      </body>
+    </html>
+  )
 }
