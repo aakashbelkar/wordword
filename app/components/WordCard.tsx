@@ -47,31 +47,34 @@ export default function WordCard({
   }, [word])
 
 
-  async function updateStatus(type: string) {
+async function updateStatus(type: string) {
 
-    setLoading(true)
+  setLoading(true)
 
-    const { data: userData } = await supabase.auth.getUser()
+  const { data: userData } = await supabase.auth.getUser()
 
-    if (!userData?.user) {
-      setLoading(false)
-      return
-    }
+  if (!userData?.user) {
+    setLoading(false)
+    return
+  }
 
-    const { error } = await supabase
-      .from("learned_words")
-      .upsert({
+  const { error } = await supabase
+    .from("learned_words")
+    .upsert(
+      {
         user_id: userData.user.id,
         word: word,
         status: type
-      })
+      },
+      { onConflict: "user_id,word" }
+    )
 
-    if (!error) {
-      setStatus(type)
-    }
-
-    setLoading(false)
+  if (!error) {
+    setStatus(type)
   }
+
+  setLoading(false)
+}
 
   return (
     <div
