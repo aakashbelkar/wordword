@@ -7,7 +7,7 @@ type Props = {
   word: string
   meaning?: string
   example?: string
-  slug?: string
+  slug: string
   language?: string
 }
 
@@ -15,19 +15,16 @@ export default function WordCard({
   word,
   meaning,
   example,
+  slug,
 }: Props) {
 
   const [status, setStatus] = useState<string | null>(null)
   const [user, setUser] = useState<any>(null)
   const [showLoginPopup, setShowLoginPopup] = useState(false)
-
-  const handleLogin = async () => {
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-    })
-  }
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
+
     async function loadUser() {
 
       const { data: { user } } = await supabase.auth.getUser()
@@ -50,15 +47,18 @@ export default function WordCard({
 
   }, [word])
 
+async function updateStatus(newStatus: string) {
 
+  if (!user) {
+    setShowLoginPopup(true)
+    return
+  }
 
-  async function updateStatus(newStatus: string) {
+  setLoading(true)
 
-    if (!user) {
-      setShowLoginPopup(true)
-      return
-    }
+  try {
 
+    // If clicking the same status again → remove it
     if (status === newStatus) {
 
       await supabase
@@ -68,28 +68,65 @@ export default function WordCard({
         .eq("word", word)
 
       setStatus(null)
-      return
+
+    } else {
+
+      // Check if row already exists
+      const { data } = await supabase
+        .from("learned_words")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("word", word)
+        .maybeSingle()
+
+      if (data) {
+
+        // update existing row
+        await supabase
+          .from("learned_words")
+          .update({ status: newStatus })
+          .eq("user_id", user.id)
+          .eq("word", word)
+
+      } else {
+
+        // insert new row
+        await supabase
+          .from("learned_words")
+          .insert({
+            user_id: user.id,
+            word: word,
+            status: newStatus
+          })
+
+      }
+
+      setStatus(newStatus)
     }
 
-    await supabase
-      .from("learned_words")
-      .upsert({
-        user_id: user.id,
-        word: word,
-        status: newStatus,
-      })
-
-    setStatus(newStatus)
+  } catch (err) {
+    console.error(err)
   }
 
+  setLoading(false)
+}
 
+  async function handleLogin() {
+    await supabase.auth.signInWithOAuth({
+      provider: "google",
+    })
+  }
 
   return (
-
     <>
-      <div className="border border-gray-200 rounded-2xl p-6 bg-white shadow-sm hover:shadow-md transition">
+      <div className="relative rounded-2xl p-6 border bg-white shadow-sm">
 
-        {/* Word */}
+        {loading && (
+          <div className="absolute inset-0 flex items-center justify-center bg-white/70 rounded-2xl z-10">
+            <div className="h-8 w-8 border-4 border-gray-300 border-t-black rounded-full animate-spin"></div>
+          </div>
+        )}
+
         <div className="flex justify-between items-center">
 
           <h2 className="text-xl font-semibold">
@@ -97,88 +134,91 @@ export default function WordCard({
           </h2>
 
           {status && (
-            <span className="text-xs px-3 py-1 rounded-full bg-gray-100 capitalize">
-              {status}
+            <span
+              className={`text-xs px-3 py-1 rounded-full font-medium
+              ${
+                status === "mastered"
+                  ? "bg-green-100 text-green-700"
+                  : "bg-red-100 text-red-600"
+              }`}
+            >
+              {status === "mastered" ? "Strong 💪" : "Weak ⚠️"}
             </span>
           )}
 
         </div>
 
-
-        {/* Meaning */}
         {meaning && (
           <p className="text-gray-700 mt-3">
             {meaning}
           </p>
         )}
 
-
-        {/* Example */}
         {example && (
-          <p className="text-gray-500 mt-2 italic">
-            "{example}"
-          </p>
+          <div className="mt-3">
+
+            <p className="text-gray-500 italic">
+              "{example}"
+            </p>
+
+            <a
+              href={`/word/${slug}`}
+              className="text-sm text-indigo-600 hover:underline mt-2 inline-block"
+            >
+              Learn more →
+            </a>
+
+          </div>
         )}
 
-
-        {/* Buttons */}
         <div className="flex gap-3 mt-5">
 
           <button
+            disabled={loading}
             onClick={() => updateStatus("mastered")}
-            className={`px-4 py-1.5 rounded-lg text-sm border transition ${
-              status === "mastered"
-                ? "bg-green-500 text-white border-green-500"
-                : "hover:bg-green-50"
-            }`}
+            className="px-4 py-2 border rounded-lg text-sm hover:bg-gray-100"
           >
-            Mastered
+            💪 Strong
           </button>
 
           <button
+            disabled={loading}
             onClick={() => updateStatus("weak")}
-            className={`px-4 py-1.5 rounded-lg text-sm border transition ${
-              status === "weak"
-                ? "bg-yellow-400 border-yellow-400"
-                : "hover:bg-yellow-50"
-            }`}
+            className="px-4 py-2 border rounded-lg text-sm hover:bg-gray-100"
           >
-            Mark Weak
+            ⚠️ Weak
           </button>
 
         </div>
 
       </div>
 
-
-
-      {/* LOGIN POPUP */}
       {showLoginPopup && (
 
-        <div className="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-50">
+        <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
 
-          <div className="bg-white rounded-2xl p-7 max-w-sm text-center shadow-lg">
+          <div className="bg-white rounded-2xl p-8 max-w-sm text-center shadow-xl">
 
             <h3 className="text-xl font-semibold mb-3">
-              Login to Unlock Features 🚀
+              Login to track words
             </h3>
 
             <p className="text-sm text-gray-600 mb-6">
-              Track mastered words and review weak vocabulary.
+              Log in to mark words as Strong or Weak and track your learning.
             </p>
 
             <div className="flex justify-center gap-3">
 
               <button
                 onClick={() => setShowLoginPopup(false)}
-                className="px-4 py-2 text-sm border rounded-lg hover:bg-gray-100"
+                className="px-4 py-2 border rounded-lg text-sm"
               >
-                Maybe Later
+                Cancel
               </button>
 
               <button
                 onClick={handleLogin}
-                className="px-4 py-2 text-sm bg-black text-white rounded-lg hover:opacity-90"
+                className="px-5 py-2 bg-black text-white rounded-lg text-sm"
               >
                 Login with Google
               </button>
