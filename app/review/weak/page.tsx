@@ -44,7 +44,7 @@ Practice vocabulary you marked as weak
 
 {words.length === 0 && (
 <p className="text-center text-gray-400">
-No weak words yet.
+No weak words yet here.
 </p>
 )}
 
