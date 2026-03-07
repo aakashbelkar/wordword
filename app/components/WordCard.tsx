@@ -20,24 +20,22 @@ export default function WordCard({
   language,
 }: Props) {
 
-  const [saved, setSaved] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [status, setStatus] = useState<string | null>(null)
 
-  async function handleSave() {
+  async function updateStatus(type: string) {
+
     setLoading(true)
 
-    const { error } = await supabase.from("saved_words").insert([
-      {
+    const { error } = await supabase
+      .from("word_progress")
+      .upsert({
         word,
-        meaning,
-        example,
-        slug,
-        language,
-      },
-    ])
+        status: type,
+      })
 
     if (!error) {
-      setSaved(true)
+      setStatus(type)
     }
 
     setLoading(false)
@@ -46,46 +44,67 @@ export default function WordCard({
   return (
     <div
       className={`relative border rounded-xl p-5 shadow-sm transition-all duration-300 
-      ${loading ? "opacity-50 pointer-events-none" : ""}`}
+      ${loading ? "opacity-60 pointer-events-none" : ""}`}
     >
-      
-      {/* Updating overlay */}
+
+      {/* Overlay when updating */}
       {loading && (
         <div className="absolute inset-0 flex items-center justify-center bg-white/70 rounded-xl">
-          <span className="text-sm font-medium animate-pulse">
+          <div className="flex items-center gap-2 text-sm font-medium">
+            <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
             Updating...
-          </span>
+          </div>
         </div>
       )}
 
-      {/* Word */}
+      {/* WORD */}
       <Link href={`/word/${slug}`}>
-        <h2 className="text-xl font-semibold mb-2 hover:underline">
+        <h2 className="text-xl font-semibold hover:underline">
           {word}
         </h2>
       </Link>
 
-      {/* Meaning */}
-      <p className="text-gray-700 mb-3">{meaning}</p>
+      {/* MEANING */}
+      <p className="text-gray-700 mt-2">
+        {meaning}
+      </p>
 
-      {/* Example */}
-      <p className="text-gray-500 italic mb-4">
+      {/* EXAMPLE */}
+      <p className="text-gray-500 italic mt-2">
         "{example}"
       </p>
 
-      {/* Button */}
-      <button
-        onClick={handleSave}
-        disabled={loading}
-        className={`px-4 py-2 rounded-lg text-sm font-medium transition
-        ${
-          saved
-            ? "bg-green-500 text-white"
-            : "bg-black text-white hover:bg-gray-800"
-        }`}
-      >
-        {saved ? "Saved ✓" : "Save Word"}
-      </button>
+      {/* ACTIONS */}
+      <div className="flex flex-wrap gap-2 mt-4">
+
+        {/* Learn More */}
+        <Link
+          href={`/word/${slug}`}
+          className="px-3 py-1 text-sm border rounded hover:bg-gray-50"
+        >
+          Learn More
+        </Link>
+
+        {/* Mark Weak */}
+        <button
+          onClick={() => updateStatus("weak")}
+          className={`px-3 py-1 text-sm rounded border 
+          ${status === "weak" ? "bg-yellow-200" : ""}`}
+        >
+          Mark Weak
+        </button>
+
+        {/* Mastered */}
+        <button
+          onClick={() => updateStatus("mastered")}
+          className={`px-3 py-1 text-sm rounded border 
+          ${status === "mastered" ? "bg-green-200" : ""}`}
+        >
+          Mastered
+        </button>
+
+      </div>
+
     </div>
   )
 }
