@@ -2,159 +2,78 @@
 
 import { useEffect, useState } from "react"
 import { supabase } from "@/lib/supabase"
+import Link from "next/link"
 
-export default function WordCard({ word }: { word: string }) {
+export default function MasteredWords() {
 
-  const [status, setStatus] = useState<string | null>(null)
-  const [user, setUser] = useState<any>(null)
-  const [showLoginPopup, setShowLoginPopup] = useState(false)
+const [words, setWords] = useState<any[]>([])
 
-  // ✅ LOGIN FUNCTION (THIS WAS MISSING)
-  const handleLogin = async () => {
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-    })
-  }
+useEffect(() => {
 
-  useEffect(() => {
-    async function loadUser() {
+async function load() {
 
-      const { data: { user } } = await supabase.auth.getUser()
+const { data: { user } } = await supabase.auth.getUser()
 
-      if (!user) return
+if (!user) return
 
-      setUser(user)
+const { data } = await supabase
+.from("learned_words")
+.select("*")
+.eq("user_id", user.id)
+.eq("status", "mastered")
 
-      const { data } = await supabase
-        .from("learned_words")
-        .select("status")
-        .eq("user_id", user.id)
-        .eq("word", word)
-        .single()
+if (data) setWords(data)
 
-      if (data) setStatus(data.status)
-    }
+}
 
-    loadUser()
-  }, [word])
+load()
 
+}, [])
 
+return (
 
-  async function updateStatus(newStatus: string) {
+<div className="max-w-4xl mx-auto px-5 py-10">
 
-    if (!user) {
-      setShowLoginPopup(true)
-      return
-    }
+<h1 className="text-4xl font-bold mb-2 text-center">
+Mastered Words
+</h1>
 
-    // toggle off if same clicked
-    if (status === newStatus) {
+<p className="text-center text-gray-500 mb-10">
+Words you have successfully learned
+</p>
 
-      await supabase
-        .from("learned_words")
-        .delete()
-        .eq("user_id", user.id)
-        .eq("word", word)
+{words.length === 0 && (
+<p className="text-center text-gray-400">
+No mastered words yet.
+</p>
+)}
 
-      setStatus(null)
-      return
-    }
+<div className="grid gap-4">
 
-    await supabase
-      .from("learned_words")
-      .upsert({
-        user_id: user.id,
-        word: word,
-        status: newStatus,
-      })
+{words.map((w) => (
 
-    setStatus(newStatus)
-  }
+<Link
+key={w.word}
+href={`/word/${w.word.toLowerCase()}`}
+className="flex justify-between items-center p-5 rounded-xl border border-green-200 bg-green-50 hover:shadow-md hover:-translate-y-0.5 transition"
+>
 
+<span className="font-medium">
+{w.word}
+</span>
 
+<span className="text-sm text-green-600">
+View →
+</span>
 
-  return (
-    <>
-      <div className="border rounded-xl p-5">
+</Link>
 
-        <div className="flex justify-between items-center">
+))}
 
-          <h2 className="text-lg font-semibold">
-            {word}
-          </h2>
+</div>
 
-          {status && (
-            <span className="text-xs px-2 py-1 rounded bg-gray-100">
-              {status}
-            </span>
-          )}
+</div>
 
-        </div>
+)
 
-
-        <div className="flex gap-3 mt-4">
-
-          <button
-            onClick={() => updateStatus("mastered")}
-            className={`px-3 py-1 border rounded text-sm ${
-              status === "mastered" ? "bg-green-500 text-white" : ""
-            }`}
-          >
-            Mastered
-          </button>
-
-          <button
-            onClick={() => updateStatus("weak")}
-            className={`px-3 py-1 border rounded text-sm ${
-              status === "weak" ? "bg-yellow-400" : ""
-            }`}
-          >
-            Mark Weak
-          </button>
-
-        </div>
-
-      </div>
-
-
-
-      {/* LOGIN POPUP */}
-
-      {showLoginPopup && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
-
-          <div className="bg-white rounded-xl p-6 max-w-sm text-center">
-
-            <h3 className="text-lg font-semibold mb-3">
-              Login to Unlock Features 🚀
-            </h3>
-
-            <p className="text-sm text-gray-600 mb-4">
-              Track mastered words and review weak vocabulary.
-            </p>
-
-            <div className="flex justify-center gap-3">
-
-              <button
-                onClick={() => setShowLoginPopup(false)}
-                className="px-4 py-2 text-sm border rounded"
-              >
-                Maybe Later
-              </button>
-
-              <button
-                onClick={handleLogin}
-                className="px-4 py-2 text-sm bg-black text-white rounded"
-              >
-                Register / Login with Google
-              </button>
-
-            </div>
-
-          </div>
-
-        </div>
-      )}
-    </>
-  )
 }

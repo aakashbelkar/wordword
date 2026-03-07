@@ -1,185 +1,167 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { supabase } from "@/lib/supabase"
-import Link from "next/link"
-import { useState, useEffect } from "react"
 
-type Props = {
-  word: string
-  meaning: string
-  example: string
-  slug: string
-  language: string
+export default function WordCard({ word }: { word: string }) {
+
+const [status, setStatus] = useState<string | null>(null)
+const [user, setUser] = useState<any>(null)
+const [showLoginPopup, setShowLoginPopup] = useState(false)
+
+const handleLogin = async () => {
+await supabase.auth.signInWithOAuth({
+provider: "google",
+})
 }
 
-export default function WordCard({
-  word,
-  meaning,
-  example,
-  slug,
-}: Props) {
+useEffect(() => {
 
-  const [loading, setLoading] = useState(false)
-  const [status, setStatus] = useState<string | null>(null)
-  const [showLoginPopup, setShowLoginPopup] = useState(false)
+async function loadUser() {
 
-  async function login() {
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-    })
-  }
+const { data: { user } } = await supabase.auth.getUser()
 
-  useEffect(() => {
-    async function loadStatus() {
-      const { data: userData } = await supabase.auth.getUser()
+if (!user) return
 
-      if (!userData?.user) return
+setUser(user)
 
-      const { data } = await supabase
-        .from("learned_words")
-        .select("status")
-        .eq("word", word)
-        .eq("user_id", userData.user.id)
-        .single()
+const { data } = await supabase
+.from("learned_words")
+.select("status")
+.eq("user_id", user.id)
+.eq("word", word)
+.single()
 
-      if (data) setStatus(data.status)
-    }
+if (data) setStatus(data.status)
 
-    loadStatus()
-  }, [word])
+}
 
-  async function updateStatus(type: string) {
+loadUser()
 
-    const { data: userData } = await supabase.auth.getUser()
+}, [word])
 
-    if (!userData?.user) {
-      setShowLoginPopup(true)
-      return
-    }
+async function updateStatus(newStatus: string) {
 
-    setLoading(true)
+if (!user) {
+setShowLoginPopup(true)
+return
+}
 
-    const userId = userData.user.id
+if (status === newStatus) {
 
-    if (status === type) {
+await supabase
+.from("learned_words")
+.delete()
+.eq("user_id", user.id)
+.eq("word", word)
 
-      await supabase
-        .from("learned_words")
-        .delete()
-        .eq("user_id", userId)
-        .eq("word", word)
+setStatus(null)
+return
 
-      setStatus(null)
+}
 
-    } else {
+await supabase
+.from("learned_words")
+.upsert({
+user_id: user.id,
+word: word,
+status: newStatus,
+})
 
-      await supabase
-        .from("learned_words")
-        .upsert(
-          { user_id: userId, word, status: type },
-          { onConflict: "user_id,word" }
-        )
+setStatus(newStatus)
 
-      setStatus(type)
-    }
+}
 
-    setLoading(false)
-  }
+return (
 
-  return (
-    <>
-      <div className="border rounded-2xl p-6 bg-white shadow-sm hover:shadow-md transition">
+<>
 
-        <Link href={`/word/${slug}`}>
-          <h2 className="text-2xl font-semibold hover:underline">
-            {word}
-          </h2>
-        </Link>
+<div className="border border-gray-200 rounded-xl p-5 bg-white shadow-sm hover:shadow-md transition">
 
-        <div className="mt-2">
+<div className="flex justify-between items-center">
 
-          {status === "mastered" && (
-            <span className="text-xs px-3 py-1 rounded-full bg-green-100 text-green-700">
-              Mastered
-            </span>
-          )}
+<h2 className="text-lg font-semibold">
+{word}
+</h2>
 
-          {status === "weak" && (
-            <span className="text-xs px-3 py-1 rounded-full bg-yellow-100 text-yellow-700">
-              Needs Practice
-            </span>
-          )}
-        </div>
+{status && (
+<span className="text-xs px-2 py-1 rounded-full bg-gray-100 capitalize">
+{status}
+</span>
+)}
 
-        <p className="mt-4 text-gray-700">
-          {meaning}
-        </p>
+</div>
 
-        <p className="italic text-gray-500 mt-2">
-          "{example}"
-        </p>
+<div className="flex gap-3 mt-4">
 
-        <div className="flex gap-3 mt-5 flex-wrap">
+<button
+onClick={() => updateStatus("mastered")}
+className={`px-4 py-1.5 rounded-lg text-sm border transition ${
+status === "mastered"
+? "bg-green-500 text-white border-green-500"
+: "hover:bg-green-50"
+}`}
+>
+Mastered
+</button>
 
-          <Link
-            href={`/word/${slug}`}
-            className="px-4 py-2 border rounded-lg text-sm hover:bg-gray-100"
-          >
-            Learn More
-          </Link>
+<button
+onClick={() => updateStatus("weak")}
+className={`px-4 py-1.5 rounded-lg text-sm border transition ${
+status === "weak"
+? "bg-yellow-400 border-yellow-400"
+: "hover:bg-yellow-50"
+}`}
+>
+Mark Weak
+</button>
 
-          <button
-            onClick={() => updateStatus("weak")}
-            className="px-4 py-2 border rounded-lg text-sm hover:bg-yellow-50"
-          >
-            Mark Weak
-          </button>
+</div>
 
-          <button
-            onClick={() => updateStatus("mastered")}
-            className="px-4 py-2 border rounded-lg text-sm hover:bg-green-50"
-          >
-            Mastered
-          </button>
+</div>
 
-        </div>
 
-      </div>
 
-      {showLoginPopup && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
+{showLoginPopup && (
 
-          <div className="bg-white rounded-2xl p-6 max-w-sm text-center shadow-lg">
+<div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
 
-            <h3 className="text-lg font-semibold mb-2">
-              Unlock Learning Features 🚀
-            </h3>
+<div className="bg-white rounded-xl p-7 max-w-sm text-center shadow-lg">
 
-            <p className="text-sm text-gray-600 mb-4">
-              Login to mark words as mastered and track progress.
-            </p>
+<h3 className="text-xl font-semibold mb-3">
+Login to Unlock Features 🚀
+</h3>
 
-            <div className="flex gap-3 justify-center">
+<p className="text-sm text-gray-600 mb-6">
+Track mastered words and review weak vocabulary.
+</p>
 
-              <button
-                onClick={() => setShowLoginPopup(false)}
-                className="px-4 py-2 border rounded"
-              >
-                Maybe Later
-              </button>
+<div className="flex justify-center gap-3">
 
-              <button
-                onClick={login}
-                className="px-4 py-2 bg-black text-white rounded"
-              >
-                Login with Google
-              </button>
+<button
+onClick={() => setShowLoginPopup(false)}
+className="px-4 py-2 text-sm border rounded-lg hover:bg-gray-100"
+>
+Maybe Later
+</button>
 
-            </div>
+<button
+onClick={handleLogin}
+className="px-4 py-2 text-sm bg-black text-white rounded-lg hover:opacity-90"
+>
+Register / Login
+</button>
 
-          </div>
-        </div>
-      )}
-    </>
-  )
+</div>
+
+</div>
+
+</div>
+
+)}
+
+</>
+
+)
+
 }

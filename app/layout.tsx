@@ -1,27 +1,9 @@
 import "./globals.css"
-import { Comfortaa } from "next/font/google"
 import Header from "./components/Header"
-import Footer from "./components/Footer"
-
-const comfortaa = Comfortaa({
-  subsets: ["latin"],
-})
 
 export const metadata = {
-  metadataBase: new URL("https://wordword.app"),
-
-  title: {
-    default: "WordWord — Learn English Vocabulary with Stories",
-    template: "%s | WordWord",
-  },
-
-  description:
-    "Learn English vocabulary through stories in Hindi and Marathi. Improve vocabulary with examples, images and quizzes.",
-
-  robots: {
-    index: true,
-    follow: true,
-  },
+  title: "WordWord",
+  description: "Discover powerful English words",
 }
 
 export default function RootLayout({
@@ -31,16 +13,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body
-        className={`${comfortaa.className} bg-gray-50 text-gray-900`}
-      >
+      <body className="bg-gradient-to-b from-white to-gray-100 min-h-screen text-gray-900">
+
         <Header />
 
-        <main className="min-h-screen max-w-5xl mx-auto px-4 py-10">
+        <main className="max-w-4xl mx-auto px-5 py-10">
           {children}
         </main>
 
-        <Footer />
       </body>
     </html>
   )
