@@ -1,36 +1,31 @@
-import words from "@/data/words.json"
+import { supabase } from "@/lib/supabase"
 import WordClient from "./WordClient"
-import type { Metadata } from "next"
 
-type Props = {
-  params: Promise<{ slug: string }>
+type PageProps = {
+  params: {
+    slug: string
+  }
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export default async function Page({ params }: PageProps) {
+  const { slug } = params
 
-  const { slug } = await params
-
-  const word = words.find((w) => w.slug === slug)
+  const { data: word } = await supabase
+    .from("words")
+    .select("*")
+    .eq("slug", slug)
+    .single()
 
   if (!word) {
-    return {
-      title: "Word not found"
-    }
+    return <div className="p-6">Word not found</div>
   }
 
-  return {
-    title: `${word.word} Meaning | WordWord`,
-    description: `${word.word} meaning: ${word.meaning_en}. Example sentence and story.`,
-    alternates: {
-      canonical: `https://wordword.app/word/${slug}`
-    }
-  }
-}
+  const language = "en" // you can replace later with user preference
 
-export default async function Page({ params }: Props) {
-
-  const { slug } = await params
-
-  return <WordClient slug={slug} />
-
+  return (
+    <WordClient
+      word={word}
+      language={language}
+    />
+  )
 }
