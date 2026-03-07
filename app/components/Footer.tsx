@@ -8,8 +8,8 @@ return (
 
 <footer className="mt-20 border-t bg-gray-50">
 
-<div className="max-w-5xl mx-auto px-6 py-10">
-
+<div className="max-w-3xl mx-auto px-4 py-10">
+    
 <h3 className="text-lg font-semibold mb-4 text-center">
 Browse Words by Letter
 </h3>
