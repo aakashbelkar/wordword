@@ -14,21 +14,13 @@ type Word = {
 }
 
 type Props = {
-  word?: Word
+  word: Word
   language: string
 }
 
 export default function WordClient({ word, language }: Props) {
   const [loading, setLoading] = useState(false)
   const [strength, setStrength] = useState<"strong" | "weak" | null>(null)
-
-  if (!word) {
-    return (
-      <div className="p-6 text-center text-gray-500">
-        Word not found
-      </div>
-    )
-  }
 
   function getMeaning() {
     if (language === "hi") return word.meaning_hi ?? word.meaning_en
