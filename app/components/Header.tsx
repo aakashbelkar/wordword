@@ -9,6 +9,8 @@ export default function Header(){
 const [user,setUser] = useState<any>(null)
 const [menuOpen,setMenuOpen] = useState(false)
 
+const closeMenu = () => setMenuOpen(false)
+
 useEffect(()=>{
 
 async function loadUser(){
@@ -21,12 +23,14 @@ loadUser()
 },[])
 
 async function login(){
+closeMenu()
 await supabase.auth.signInWithOAuth({
 provider:"google"
 })
 }
 
 async function logout(){
+closeMenu()
 await supabase.auth.signOut()
 location.reload()
 }
@@ -95,11 +99,11 @@ className="md:hidden text-2xl"
 
 {user && (
 <>
-<Link href="/review" className="block">
+<Link href="/review" onClick={closeMenu} className="block">
 Review
 </Link>
 
-<Link href="/dashboard" className="block">
+<Link href="/dashboard" onClick={closeMenu} className="block">
 Dashboard
 </Link>
 </>

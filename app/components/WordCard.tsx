@@ -22,6 +22,8 @@ export default function WordCard({
   const [user, setUser] = useState<any>(null)
   const [showLoginPopup, setShowLoginPopup] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [showTooltip, setShowTooltip] = useState(false)
+  const [animate, setAnimate] = useState(false)
 
   useEffect(() => {
 
@@ -47,75 +49,102 @@ export default function WordCard({
 
   }, [word])
 
-async function updateStatus(newStatus: string) {
 
-  if (!user) {
-    setShowLoginPopup(true)
-    return
-  }
 
-  setLoading(true)
+  async function updateStatus(newStatus: string | null) {
 
-  try {
+    if (!user) {
+      setShowLoginPopup(true)
+      return
+    }
 
-    // If clicking the same status again → remove it
-    if (status === newStatus) {
+    setLoading(true)
 
-      await supabase
-        .from("learned_words")
-        .delete()
-        .eq("user_id", user.id)
-        .eq("word", word)
+    try {
 
-      setStatus(null)
+      if (newStatus === null) {
 
-    } else {
-
-      // Check if row already exists
-      const { data } = await supabase
-        .from("learned_words")
-        .select("id")
-        .eq("user_id", user.id)
-        .eq("word", word)
-        .maybeSingle()
-
-      if (data) {
-
-        // update existing row
         await supabase
           .from("learned_words")
-          .update({ status: newStatus })
+          .delete()
           .eq("user_id", user.id)
           .eq("word", word)
 
+        setStatus(null)
+
       } else {
 
-        // insert new row
-        await supabase
+        const { data } = await supabase
           .from("learned_words")
-          .insert({
-            user_id: user.id,
-            word: word,
-            status: newStatus
-          })
+          .select("id")
+          .eq("user_id", user.id)
+          .eq("word", word)
+          .maybeSingle()
 
+        if (data) {
+
+          await supabase
+            .from("learned_words")
+            .update({ status: newStatus })
+            .eq("user_id", user.id)
+            .eq("word", word)
+
+        } else {
+
+          await supabase
+            .from("learned_words")
+            .insert({
+              user_id: user.id,
+              word: word,
+              status: newStatus
+            })
+
+        }
+
+        setStatus(newStatus)
       }
 
-      setStatus(newStatus)
+      setAnimate(true)
+      setTimeout(()=>setAnimate(false),300)
+
+    } catch (err) {
+      console.error(err)
     }
 
-  } catch (err) {
-    console.error(err)
+    setLoading(false)
   }
 
-  setLoading(false)
-}
+
+
+  function handlePillClick() {
+
+    if (!user) {
+      setShowLoginPopup(true)
+      return
+    }
+
+    if (status === null) {
+      updateStatus("mastered")
+    }
+    else if (status === "mastered") {
+      updateStatus("weak")
+    }
+    else {
+      updateStatus(null)
+    }
+  }
+
+
 
   async function handleLogin() {
+
     await supabase.auth.signInWithOAuth({
       provider: "google",
     })
+
   }
+
+
 
   return (
     <>
@@ -133,26 +162,50 @@ async function updateStatus(newStatus: string) {
             {word}
           </h2>
 
-          {status && (
-            <span
-              className={`text-xs px-3 py-1 rounded-full font-medium
+          <div className="relative">
+
+            {showTooltip && (
+              <div className="absolute -top-7 right-0 text-xs bg-black text-white px-2 py-1 rounded">
+                Tap to change
+              </div>
+            )}
+
+            <button
+              onMouseEnter={()=>setShowTooltip(true)}
+              onMouseLeave={()=>setShowTooltip(false)}
+              onTouchStart={()=>setShowTooltip(true)}
+              onTouchEnd={()=>setTimeout(()=>setShowTooltip(false),1500)}
+              onClick={handlePillClick}
+              className={`text-xs px-3 py-1 rounded-full font-medium transition transform
+              ${animate ? "scale-110" : "scale-100"}
               ${
                 status === "mastered"
                   ? "bg-green-100 text-green-700"
-                  : "bg-red-100 text-red-600"
+                  : status === "weak"
+                  ? "bg-red-100 text-red-600"
+                  : "bg-gray-100 text-gray-600"
               }`}
             >
-              {status === "mastered" ? "Strong 💪" : "Weak ⚠️"}
-            </span>
-          )}
+              {status === "mastered"
+                ? "Strong 💪"
+                : status === "weak"
+                ? "Weak ⚠️"
+                : "Track ✓"}
+            </button>
+
+          </div>
 
         </div>
+
+
 
         {meaning && (
           <p className="text-gray-700 mt-3">
             {meaning}
           </p>
         )}
+
+
 
         {example && (
           <div className="mt-3">
@@ -171,27 +224,9 @@ async function updateStatus(newStatus: string) {
           </div>
         )}
 
-        <div className="flex gap-3 mt-5">
-
-          <button
-            disabled={loading}
-            onClick={() => updateStatus("mastered")}
-            className="px-4 py-2 border rounded-lg text-sm hover:bg-gray-100"
-          >
-            💪 Strong
-          </button>
-
-          <button
-            disabled={loading}
-            onClick={() => updateStatus("weak")}
-            className="px-4 py-2 border rounded-lg text-sm hover:bg-gray-100"
-          >
-            ⚠️ Weak
-          </button>
-
-        </div>
-
       </div>
+
+
 
       {showLoginPopup && (
 
