@@ -2,7 +2,7 @@
 
 import { supabase } from "@/lib/supabase"
 import Link from "next/link"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
 type Props = {
   word: string
@@ -22,6 +22,25 @@ export default function WordCard({
 
   const [loading, setLoading] = useState(false)
   const [status, setStatus] = useState<string | null>(null)
+
+  // LOAD STATUS FROM DATABASE
+  useEffect(() => {
+    async function loadStatus() {
+
+      const { data } = await supabase
+        .from("word_progress")
+        .select("status")
+        .eq("word", word)
+        .single()
+
+      if (data) {
+        setStatus(data.status)
+      }
+    }
+
+    loadStatus()
+  }, [word])
+
 
   async function updateStatus(type: string) {
 
@@ -94,7 +113,6 @@ export default function WordCard({
       {/* ACTION BUTTONS */}
       <div className="flex flex-wrap gap-2 mt-4">
 
-        {/* Learn More */}
         <Link
           href={`/word/${slug}`}
           className="px-3 py-1 text-sm border rounded hover:bg-gray-50"
@@ -102,7 +120,6 @@ export default function WordCard({
           Learn More
         </Link>
 
-        {/* Mark Weak */}
         <button
           onClick={() => updateStatus("weak")}
           className="px-3 py-1 text-sm border rounded hover:bg-yellow-50"
@@ -110,7 +127,6 @@ export default function WordCard({
           Mark Weak
         </button>
 
-        {/* Mastered */}
         <button
           onClick={() => updateStatus("mastered")}
           className="px-3 py-1 text-sm border rounded hover:bg-green-50"
