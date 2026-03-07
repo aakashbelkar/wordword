@@ -19,16 +19,14 @@ export default function WordClient({ slug }: Props) {
 
   useEffect(() => {
     const savedLang = localStorage.getItem("language")
-    if (savedLang) {
-      setLanguage(savedLang)
-    }
+    if (savedLang) setLanguage(savedLang)
   }, [])
 
-const word = words.find(w => w.slug === slug)
+  const word = words.find(w => w.slug === slug)
 
-if (!word) {
-  return <div className="p-10 text-xl text-center">Word not found</div>
-}
+  if (!word) {
+    return <div className="p-10 text-xl text-center">Word not found</div>
+  }
 
   const related = words
     .filter(w => w.slug !== slug)
@@ -44,23 +42,15 @@ if (!word) {
     url: `https://wordword.app/word/${word.slug}`
   }
 
+  // QUIZ ALWAYS IN ENGLISH
   useEffect(() => {
-    const correctMeaning =
-      language === "hi"
-        ? word.meaning_hi
-        : language === "mr"
-        ? word.meaning_mr
-        : word.meaning_en
 
+    const correctMeaning = word.meaning_en
     setCorrect(correctMeaning)
 
     const otherMeanings = words
       .filter(w => w.slug !== slug)
-      .map(w => {
-        if (language === "hi") return w.meaning_hi
-        if (language === "mr") return w.meaning_mr
-        return w.meaning_en
-      })
+      .map(w => w.meaning_en)
 
     const shuffled = otherMeanings.sort(() => 0.5 - Math.random())
 
@@ -72,32 +62,33 @@ if (!word) {
     ].sort(() => 0.5 - Math.random())
 
     setOptions(quizOptions)
-}, [language, slug])
 
-  // HELPER FUNCTIONS (Now safe because 'word' is guaranteed to exist here)
+  }, [slug])
+
   function getMeaning() {
-    if (language === "hi") return word?.meaning_hi
-    if (language === "mr") return word?.meaning_mr
-    return word?.meaning_en
+    if (language === "hi") return word.meaning_hi
+    if (language === "mr") return word.meaning_mr
+    return word.meaning_en
   }
 
-function getExample(){
-
-if(language==="hi") return word?.example_hi
-if(language==="mr") return word?.example_mr
-return word?.example_en
-
-}
+  function getExample() {
+    if (language === "hi") return word.example_hi
+    if (language === "mr") return word.example_mr
+    return word.example_en
+  }
 
   function getStory() {
-    if (language === "hi") return word?.story_hi
-    if (language === "mr") return word?.story_mr
-    return word?.story_en
+    if (language === "hi") return word.story_hi
+    if (language === "mr") return word.story_mr
+    return word.story_en
   }
 
   function selectOption(opt: string) {
+
     if (selected) return
+
     setSelected(opt)
+
     if (opt === correct) {
       setResult("correct")
     } else {
@@ -106,6 +97,7 @@ return word?.example_en
   }
 
   async function markStatus(wordText: string, status: "mastered" | "weak") {
+
     const { data: { user } } = await supabase.auth.getUser()
 
     if (!user) {
@@ -113,7 +105,7 @@ return word?.example_en
       return
     }
 
-    await supabase
+    const { error } = await supabase
       .from("learned_words")
       .upsert({
         user_id: user.id,
@@ -121,7 +113,14 @@ return word?.example_en
         status: status
       })
 
-    window.location.href = "/"
+    if (error) {
+      console.error(error)
+      alert("Something went wrong")
+      return
+    }
+
+    alert("Saved!")
+
   }
 
   return (
@@ -134,6 +133,7 @@ return word?.example_en
       />
 
       <div className="max-w-3xl mx-auto p-6">
+
         <h1 className="text-4xl font-bold mb-4">{word.word}</h1>
 
         <Image
@@ -147,28 +147,34 @@ return word?.example_en
         <div className="space-y-3 text-lg">
           <p><strong>Meaning:</strong> {getMeaning()}</p>
           <p><strong>Example:</strong> {getExample()}</p>
+
           <div className="mt-10 bg-blue-50 border border-blue-100 rounded-xl p-6">
 
-<h3 className="text-xl font-semibold mb-3 text-blue-900">
-Story
-</h3>
+            <h3 className="text-xl font-semibold mb-3 text-blue-900">
+              Story
+            </h3>
 
-<p className="leading-relaxed text-gray-800 text-lg">
-{getStory()}
-</p>
+            <p className="leading-relaxed text-gray-800 text-lg">
+              {getStory()}
+            </p>
 
-</div>
+          </div>
         </div>
 
         <div className="mt-10 border-t pt-8">
+
           <h2 className="text-2xl font-semibold mb-4">Mini Test</h2>
+
           <p className="mb-4">
             What does <b>{word.word}</b> mean?
           </p>
 
           <div className="grid gap-3 mb-6">
+
             {options.map((opt, i) => {
+
               let bg = "bg-gray-50 hover:bg-gray-100"
+
               if (selected) {
                 if (opt === correct) bg = "bg-green-200 border-green-500"
                 else if (opt === selected) bg = "bg-red-200 border-red-500"
@@ -185,37 +191,57 @@ Story
                 </div>
               )
             })}
+
           </div>
 
           {result === "correct" && (
+
             <div className="mt-6 p-4 bg-green-50 rounded-lg">
-              <p className="text-green-700 font-semibold mb-3">Well done! 🎉</p>
+
+              <p className="text-green-700 font-semibold mb-3">
+                Well done! 🎉
+              </p>
+
               <button
                 onClick={() => markStatus(word.word, "mastered")}
                 className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
               >
                 Mark Mastered
               </button>
+
             </div>
           )}
 
           {result === "wrong" && (
+
             <div className="mt-6 p-4 bg-red-50 rounded-lg">
-              <p className="text-red-700 font-semibold mb-3">Not quite right.</p>
+
+              <p className="text-red-700 font-semibold mb-3">
+                Not quite right.
+              </p>
+
               <button
                 onClick={() => markStatus(word.word, "weak")}
                 className="px-6 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
               >
                 Mark Weak
               </button>
+
             </div>
           )}
+
         </div>
 
         <div className="mt-12">
-          <h3 className="text-2xl font-bold mb-4">Related Words</h3>
+
+          <h3 className="text-2xl font-bold mb-4">
+            Related Words
+          </h3>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+
             {related.map(w => (
+
               <a
                 key={w.slug}
                 href={`/word/${w.slug}`}
@@ -223,9 +249,13 @@ Story
               >
                 {w.word}
               </a>
+
             ))}
+
           </div>
+
         </div>
+
       </div>
     </>
   )
