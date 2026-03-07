@@ -23,14 +23,19 @@ export default function WordCard({
   const [loading, setLoading] = useState(false)
   const [status, setStatus] = useState<string | null>(null)
 
-  // LOAD STATUS FROM DATABASE
+  // LOAD EXISTING STATUS
   useEffect(() => {
     async function loadStatus() {
 
+      const { data: userData } = await supabase.auth.getUser()
+
+      if (!userData?.user) return
+
       const { data } = await supabase
-        .from("word_progress")
+        .from("learned_words")
         .select("status")
         .eq("word", word)
+        .eq("user_id", userData.user.id)
         .single()
 
       if (data) {
@@ -46,11 +51,19 @@ export default function WordCard({
 
     setLoading(true)
 
+    const { data: userData } = await supabase.auth.getUser()
+
+    if (!userData?.user) {
+      setLoading(false)
+      return
+    }
+
     const { error } = await supabase
-      .from("word_progress")
+      .from("learned_words")
       .upsert({
+        user_id: userData.user.id,
         word: word,
-        status: type,
+        status: type
       })
 
     if (!error) {
