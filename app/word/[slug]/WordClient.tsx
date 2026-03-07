@@ -42,7 +42,6 @@ export default function WordClient({ slug }: Props) {
     url: `https://wordword.app/word/${word.slug}`
   }
 
-  // QUIZ ALWAYS IN ENGLISH
   useEffect(() => {
 
     const correctMeaning = word.meaning_en
@@ -54,33 +53,32 @@ export default function WordClient({ slug }: Props) {
 
     const shuffled = otherMeanings.sort(() => 0.5 - Math.random())
 
-    const quizOptions = [
-      correctMeaning,
-      shuffled[0],
-      shuffled[1],
-      shuffled[2]
-    ].sort(() => 0.5 - Math.random())
+    const wrongOptions = shuffled.slice(0, 3)
+
+    const quizOptions = [correctMeaning, ...wrongOptions]
+      .filter(Boolean)
+      .sort(() => 0.5 - Math.random())
 
     setOptions(quizOptions)
 
   }, [slug])
 
   function getMeaning() {
-    if (language === "hi") return word.meaning_hi
-    if (language === "mr") return word.meaning_mr
-    return word.meaning_en
+    if (language === "hi") return word?.meaning_hi
+    if (language === "mr") return word?.meaning_mr
+    return word?.meaning_en
   }
 
   function getExample() {
-    if (language === "hi") return word.example_hi
-    if (language === "mr") return word.example_mr
-    return word.example_en
+    if (language === "hi") return word?.example_hi
+    if (language === "mr") return word?.example_mr
+    return word?.example_en
   }
 
   function getStory() {
-    if (language === "hi") return word.story_hi
-    if (language === "mr") return word.story_mr
-    return word.story_en
+    if (language === "hi") return word?.story_hi
+    if (language === "mr") return word?.story_mr
+    return word?.story_en
   }
 
   function selectOption(opt: string) {
@@ -120,7 +118,6 @@ export default function WordClient({ slug }: Props) {
     }
 
     alert("Saved!")
-
   }
 
   return (
@@ -134,7 +131,9 @@ export default function WordClient({ slug }: Props) {
 
       <div className="max-w-3xl mx-auto p-6">
 
-        <h1 className="text-4xl font-bold mb-4">{word.word}</h1>
+        <h1 className="text-4xl font-bold mb-4">
+          {word.word}
+        </h1>
 
         <Image
           src={word.image}
@@ -145,8 +144,14 @@ export default function WordClient({ slug }: Props) {
         />
 
         <div className="space-y-3 text-lg">
-          <p><strong>Meaning:</strong> {getMeaning()}</p>
-          <p><strong>Example:</strong> {getExample()}</p>
+
+          <p>
+            <strong>Meaning:</strong> {getMeaning()}
+          </p>
+
+          <p>
+            <strong>Example:</strong> {getExample()}
+          </p>
 
           <div className="mt-10 bg-blue-50 border border-blue-100 rounded-xl p-6">
 
@@ -159,11 +164,14 @@ export default function WordClient({ slug }: Props) {
             </p>
 
           </div>
+
         </div>
 
         <div className="mt-10 border-t pt-8">
 
-          <h2 className="text-2xl font-semibold mb-4">Mini Test</h2>
+          <h2 className="text-2xl font-semibold mb-4">
+            Mini Test
+          </h2>
 
           <p className="mb-4">
             What does <b>{word.word}</b> mean?
@@ -190,6 +198,7 @@ export default function WordClient({ slug }: Props) {
                   {opt}
                 </div>
               )
+
             })}
 
           </div>
@@ -210,6 +219,7 @@ export default function WordClient({ slug }: Props) {
               </button>
 
             </div>
+
           )}
 
           {result === "wrong" && (
@@ -228,6 +238,7 @@ export default function WordClient({ slug }: Props) {
               </button>
 
             </div>
+
           )}
 
         </div>
