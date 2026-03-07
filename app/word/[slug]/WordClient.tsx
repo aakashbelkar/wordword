@@ -42,6 +42,7 @@ export default function WordClient({ slug }: Props) {
     url: `https://wordword.app/word/${word.slug}`
   }
 
+  // Quiz always English
   useEffect(() => {
 
     const correctMeaning = word.meaning_en
@@ -64,21 +65,21 @@ export default function WordClient({ slug }: Props) {
   }, [slug])
 
   function getMeaning() {
-    if (language === "hi") return word?.meaning_hi
-    if (language === "mr") return word?.meaning_mr
-    return word?.meaning_en
+    if (language === "hi") return word.meaning_hi
+    if (language === "mr") return word.meaning_mr
+    return word.meaning_en
   }
 
   function getExample() {
-    if (language === "hi") return word?.example_hi
-    if (language === "mr") return word?.example_mr
-    return word?.example_en
+    if (language === "hi") return word.example_hi
+    if (language === "mr") return word.example_mr
+    return word.example_en
   }
 
   function getStory() {
-    if (language === "hi") return word?.story_hi
-    if (language === "mr") return word?.story_mr
-    return word?.story_en
+    if (language === "hi") return word.story_hi
+    if (language === "mr") return word.story_mr
+    return word.story_en
   }
 
   function selectOption(opt: string) {
@@ -94,7 +95,7 @@ export default function WordClient({ slug }: Props) {
     }
   }
 
-  async function markStatus(wordText: string, status: "mastered" | "weak") {
+  async function markStatus(status: "mastered" | "weak") {
 
     const { data: { user } } = await supabase.auth.getUser()
 
@@ -105,11 +106,9 @@ export default function WordClient({ slug }: Props) {
 
     const { error } = await supabase
       .from("learned_words")
-      .upsert({
-        user_id: user.id,
-        word: wordText,
-        status: status
-      })
+      .update({ status: status })
+      .eq("user_id", user.id)
+      .eq("word", word.word)
 
     if (error) {
       console.error(error)
@@ -198,13 +197,11 @@ export default function WordClient({ slug }: Props) {
                   {opt}
                 </div>
               )
-
             })}
 
           </div>
 
           {result === "correct" && (
-
             <div className="mt-6 p-4 bg-green-50 rounded-lg">
 
               <p className="text-green-700 font-semibold mb-3">
@@ -212,18 +209,16 @@ export default function WordClient({ slug }: Props) {
               </p>
 
               <button
-                onClick={() => markStatus(word.word, "mastered")}
+                onClick={() => markStatus("mastered")}
                 className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
               >
                 Mark Mastered
               </button>
 
             </div>
-
           )}
 
           {result === "wrong" && (
-
             <div className="mt-6 p-4 bg-red-50 rounded-lg">
 
               <p className="text-red-700 font-semibold mb-3">
@@ -231,14 +226,13 @@ export default function WordClient({ slug }: Props) {
               </p>
 
               <button
-                onClick={() => markStatus(word.word, "weak")}
+                onClick={() => markStatus("weak")}
                 className="px-6 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
               >
                 Mark Weak
               </button>
 
             </div>
-
           )}
 
         </div>
@@ -252,7 +246,6 @@ export default function WordClient({ slug }: Props) {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
 
             {related.map(w => (
-
               <a
                 key={w.slug}
                 href={`/word/${w.slug}`}
@@ -260,7 +253,6 @@ export default function WordClient({ slug }: Props) {
               >
                 {w.word}
               </a>
-
             ))}
 
           </div>
