@@ -1,31 +1,28 @@
-import { supabase } from "@/lib/supabase"
+import words from "@/data/words.json"
 import WordClient from "./WordClient"
 
 type PageProps = {
-  params: {
+  params: Promise<{
     slug: string
-  }
+  }>
 }
 
 export default async function Page({ params }: PageProps) {
-  const { slug } = params
 
-  const { data: word } = await supabase
-    .from("words")
-    .select("*")
-    .eq("slug", slug)
-    .single()
+  const { slug } = await params
+
+  const word = words.find(
+    (w) => w.slug === slug
+  )
 
   if (!word) {
     return <div className="p-6">Word not found</div>
   }
 
-  const language = "en" // you can replace later with user preference
-
   return (
     <WordClient
       word={word}
-      language={language}
+      language="en"
     />
   )
 }
