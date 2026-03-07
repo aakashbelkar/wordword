@@ -9,16 +9,15 @@ export default function WordCard({ word }: { word: string }) {
   const [user, setUser] = useState<any>(null)
   const [showLoginPopup, setShowLoginPopup] = useState(false)
 
-  // LOGIN WITH GOOGLE
-  async function handleLogin() {
+  // ✅ LOGIN FUNCTION (THIS WAS MISSING)
+  const handleLogin = async () => {
     await supabase.auth.signInWithOAuth({
       provider: "google",
     })
   }
 
-  // GET USER + WORD STATUS
   useEffect(() => {
-    async function load() {
+    async function loadUser() {
 
       const { data: { user } } = await supabase.auth.getUser()
 
@@ -36,8 +35,9 @@ export default function WordCard({ word }: { word: string }) {
       if (data) setStatus(data.status)
     }
 
-    load()
+    loadUser()
   }, [word])
+
 
 
   async function updateStatus(newStatus: string) {
@@ -47,7 +47,7 @@ export default function WordCard({ word }: { word: string }) {
       return
     }
 
-    // TOGGLE OFF IF SAME STATUS CLICKED AGAIN
+    // toggle off if same clicked
     if (status === newStatus) {
 
       await supabase
@@ -71,14 +71,15 @@ export default function WordCard({ word }: { word: string }) {
     setStatus(newStatus)
   }
 
-  return (
 
+
+  return (
     <>
-      <div className="border rounded-xl p-5 shadow-sm">
+      <div className="border rounded-xl p-5">
 
         <div className="flex justify-between items-center">
 
-          <h2 className="text-xl font-semibold">
+          <h2 className="text-lg font-semibold">
             {word}
           </h2>
 
@@ -95,22 +96,17 @@ export default function WordCard({ word }: { word: string }) {
 
           <button
             onClick={() => updateStatus("mastered")}
-            className={`px-3 py-1 rounded border text-sm ${
-              status === "mastered"
-                ? "bg-green-500 text-white"
-                : ""
+            className={`px-3 py-1 border rounded text-sm ${
+              status === "mastered" ? "bg-green-500 text-white" : ""
             }`}
           >
             Mastered
           </button>
 
-
           <button
             onClick={() => updateStatus("weak")}
-            className={`px-3 py-1 rounded border text-sm ${
-              status === "weak"
-                ? "bg-yellow-400 text-black"
-                : ""
+            className={`px-3 py-1 border rounded text-sm ${
+              status === "weak" ? "bg-yellow-400" : ""
             }`}
           >
             Mark Weak
@@ -121,20 +117,20 @@ export default function WordCard({ word }: { word: string }) {
       </div>
 
 
+
       {/* LOGIN POPUP */}
 
       {showLoginPopup && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
 
-          <div className="bg-white rounded-xl p-6 max-w-sm text-center shadow-lg">
+          <div className="bg-white rounded-xl p-6 max-w-sm text-center">
 
             <h3 className="text-lg font-semibold mb-3">
-              Unlock Vocabulary Tracking 🚀
+              Login to Unlock Features 🚀
             </h3>
 
             <p className="text-sm text-gray-600 mb-4">
-              Login to track mastered words, review weak vocabulary,
-              and build your personal word collection.
+              Track mastered words and review weak vocabulary.
             </p>
 
             <div className="flex justify-center gap-3">
