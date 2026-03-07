@@ -4,7 +4,7 @@ import { useState } from "react"
 import { supabase } from "@/lib/supabase"
 
 type Word = {
-  id: string
+  id?: string
   slug: string
   word: string
   meaning_en: string
