@@ -1,8 +1,8 @@
 "use client"
 
 import { supabase } from "@/lib/supabase"
+import { useState } from "react"
 import Link from "next/link"
-import { useState, useEffect } from "react"
 
 type Props = {
   word: string
@@ -12,207 +12,80 @@ type Props = {
   language: string
 }
 
-type Status = "mastered" | "weak" | null
-
 export default function WordCard({
   word,
   meaning,
   example,
   slug,
-  language
+  language,
 }: Props) {
 
-  const [status, setStatus] = useState<Status>(null)
+  const [saved, setSaved] = useState(false)
   const [loading, setLoading] = useState(false)
 
-  useEffect(() => {
-
-    async function checkStatus() {
-
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
-
-      const { data } = await supabase
-        .from("learned_words")
-        .select("status")
-        .eq("user_id", user.id)
-        .eq("word", word)
-        .single()
-
-      if (data) {
-        setStatus(data.status)
-      } else {
-        setStatus(null)
-      }
-
-    }
-
-    checkStatus()
-
-  }, [word])
-
-
-  async function handleClick(type: Status) {
-
-    if (loading) return
-
+  async function handleSave() {
     setLoading(true)
 
-    const { data: { user } } = await supabase.auth.getUser()
+    const { error } = await supabase.from("saved_words").insert([
+      {
+        word,
+        meaning,
+        example,
+        slug,
+        language,
+      },
+    ])
 
-    if (!user) {
-      alert("Please login")
-      setLoading(false)
-      return
-    }
-
-    const { data: existing } = await supabase
-      .from("learned_words")
-      .select("*")
-      .eq("user_id", user.id)
-      .eq("word", word)
-      .single()
-
-    // CASE 1: record exists
-    if (existing) {
-
-      if (existing.status === type) {
-
-        // remove
-        await supabase
-          .from("learned_words")
-          .delete()
-          .eq("user_id", user.id)
-          .eq("word", word)
-
-        setStatus(null)
-
-      } else {
-
-        // switch
-        await supabase
-          .from("learned_words")
-          .update({ status: type })
-          .eq("user_id", user.id)
-          .eq("word", word)
-
-        setStatus(type)
-
-      }
-
-    } else {
-
-      // create record
-      await supabase
-        .from("learned_words")
-        .insert({
-          user_id: user.id,
-          word: word,
-          status: type
-        })
-
-      setStatus(type)
-
+    if (!error) {
+      setSaved(true)
     }
 
     setLoading(false)
   }
 
-
   return (
-
     <div
-      className={`border rounded-xl p-6 shadow-sm transition bg-white
-
-      ${status === "mastered" ? "bg-green-50 border-green-200" : ""}
-      ${status === "weak" ? "bg-red-50 border-red-200" : ""}
-
-      `}
+      className={`relative border rounded-xl p-5 shadow-sm transition-all duration-300 
+      ${loading ? "opacity-50 pointer-events-none" : ""}`}
     >
-
-      {/* WORD */}
-      <h2 className="text-2xl font-bold text-gray-900 mb-2">
-        {word}
-      </h2>
-
-      {/* STATUS BADGE */}
-
-      {status === "mastered" && (
-        <span className="inline-block text-xs px-3 py-1 bg-green-100 text-green-700 rounded-full mb-3">
-          Mastered
-        </span>
-      )}
-
-      {status === "weak" && (
-        <span className="inline-block text-xs px-3 py-1 bg-red-100 text-red-700 rounded-full mb-3">
-          Needs Practice
-        </span>
-      )}
-
-      {/* MEANING */}
-
-      <p className="text-gray-800 font-medium">
-        Meaning: {meaning}
-      </p>
-
-      {/* EXAMPLE */}
-
-      <p className="text-gray-700 mt-1">
-        Example: {example}
-      </p>
-
-      {/* ACTIONS */}
-
-      <div className="flex items-center justify-between mt-5 text-sm">
-
-        <Link
-          href={`/word/${slug}?lang=${language}`}
-          className="text-blue-600 hover:underline font-medium"
-        >
-          Learn more →
-        </Link>
-
-        <div className="flex gap-2">
-
-          {/* MASTERED BUTTON */}
-
-          <button
-            disabled={loading}
-            onClick={() => handleClick("mastered")}
-            className={`px-2 py-1 rounded-md border text-sm transition
-            ${status === "mastered" ? "bg-green-100 border-green-300" : "hover:bg-green-50"}
-            ${loading ? "opacity-50 cursor-not-allowed" : ""}
-            `}
-          >
-            ✓
-          </button>
-
-          {/* WEAK BUTTON */}
-
-          <button
-            disabled={loading}
-            onClick={() => handleClick("weak")}
-            className={`px-2 py-1 rounded-md border text-sm transition
-            ${status === "weak" ? "bg-red-100 border-red-300" : "hover:bg-red-50"}
-            ${loading ? "opacity-50 cursor-not-allowed" : ""}
-            `}
-          >
-            !
-          </button>
-
-        </div>
-
-      </div>
-
-      {/* LOADING INDICATOR */}
-
+      
+      {/* Updating overlay */}
       {loading && (
-        <p className="text-xs text-gray-500 mt-2">
-          Updating...
-        </p>
+        <div className="absolute inset-0 flex items-center justify-center bg-white/70 rounded-xl">
+          <span className="text-sm font-medium animate-pulse">
+            Updating...
+          </span>
+        </div>
       )}
 
-    </div>
+      {/* Word */}
+      <Link href={`/word/${slug}`}>
+        <h2 className="text-xl font-semibold mb-2 hover:underline">
+          {word}
+        </h2>
+      </Link>
 
+      {/* Meaning */}
+      <p className="text-gray-700 mb-3">{meaning}</p>
+
+      {/* Example */}
+      <p className="text-gray-500 italic mb-4">
+        "{example}"
+      </p>
+
+      {/* Button */}
+      <button
+        onClick={handleSave}
+        disabled={loading}
+        className={`px-4 py-2 rounded-lg text-sm font-medium transition
+        ${
+          saved
+            ? "bg-green-500 text-white"
+            : "bg-black text-white hover:bg-gray-800"
+        }`}
+      >
+        {saved ? "Saved ✓" : "Save Word"}
+      </button>
+    </div>
   )
 }
