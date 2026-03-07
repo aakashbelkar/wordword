@@ -24,6 +24,13 @@ export default function WordCard({
   const [status, setStatus] = useState<string | null>(null)
   const [showLoginPopup, setShowLoginPopup] = useState(false)
 
+  // LOGIN FUNCTION (same as header)
+  async function login() {
+    await supabase.auth.signInWithOAuth({
+      provider: "google"
+    })
+  }
+
   // LOAD EXISTING STATUS
   useEffect(() => {
     async function loadStatus() {
@@ -205,11 +212,11 @@ export default function WordCard({
               </button>
 
               <button
-  onClick={handleLogin}
-  className="px-4 py-2 text-sm bg-black text-white rounded"
->
-  regiter/Login with Google
-</button>
+                onClick={login}
+                className="px-4 py-2 text-sm bg-black text-white rounded"
+              >
+                Register / Login with Google
+              </button>
 
             </div>
 
