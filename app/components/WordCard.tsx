@@ -204,12 +204,12 @@ export default function WordCard({
                 Maybe Later
               </button>
 
-              <Link
-                href="/login"
-                className="px-4 py-2 text-sm bg-black text-white rounded"
-              >
-                Login
-              </Link>
+              <button
+  onClick={handleLogin}
+  className="px-4 py-2 text-sm bg-black text-white rounded"
+>
+  regiter/Login with Google
+</button>
 
             </div>
 
