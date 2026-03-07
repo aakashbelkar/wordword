@@ -1,8 +1,8 @@
 "use client"
 
 import { supabase } from "@/lib/supabase"
-import { useState } from "react"
 import Link from "next/link"
+import { useState } from "react"
 
 type Props = {
   word: string
@@ -30,7 +30,7 @@ export default function WordCard({
     const { error } = await supabase
       .from("word_progress")
       .upsert({
-        word,
+        word: word,
         status: type,
       })
 
@@ -43,11 +43,11 @@ export default function WordCard({
 
   return (
     <div
-      className={`relative border rounded-xl p-5 shadow-sm transition-all duration-300 
+      className={`relative border rounded-xl p-5 shadow-sm transition-all duration-300
       ${loading ? "opacity-60 pointer-events-none" : ""}`}
     >
 
-      {/* Overlay when updating */}
+      {/* Updating overlay */}
       {loading && (
         <div className="absolute inset-0 flex items-center justify-center bg-white/70 rounded-xl">
           <div className="flex items-center gap-2 text-sm font-medium">
@@ -64,8 +64,25 @@ export default function WordCard({
         </h2>
       </Link>
 
+      {/* STATUS PILL */}
+      <div className="mt-2">
+
+        {status === "mastered" && (
+          <span className="text-xs px-2 py-1 rounded-full bg-green-100 text-green-700">
+            Mastered
+          </span>
+        )}
+
+        {status === "weak" && (
+          <span className="text-xs px-2 py-1 rounded-full bg-yellow-100 text-yellow-700">
+            Needs Practice
+          </span>
+        )}
+
+      </div>
+
       {/* MEANING */}
-      <p className="text-gray-700 mt-2">
+      <p className="text-gray-700 mt-3">
         {meaning}
       </p>
 
@@ -74,7 +91,7 @@ export default function WordCard({
         "{example}"
       </p>
 
-      {/* ACTIONS */}
+      {/* ACTION BUTTONS */}
       <div className="flex flex-wrap gap-2 mt-4">
 
         {/* Learn More */}
@@ -88,8 +105,7 @@ export default function WordCard({
         {/* Mark Weak */}
         <button
           onClick={() => updateStatus("weak")}
-          className={`px-3 py-1 text-sm rounded border 
-          ${status === "weak" ? "bg-yellow-200" : ""}`}
+          className="px-3 py-1 text-sm border rounded hover:bg-yellow-50"
         >
           Mark Weak
         </button>
@@ -97,8 +113,7 @@ export default function WordCard({
         {/* Mastered */}
         <button
           onClick={() => updateStatus("mastered")}
-          className={`px-3 py-1 text-sm rounded border 
-          ${status === "mastered" ? "bg-green-200" : ""}`}
+          className="px-3 py-1 text-sm border rounded hover:bg-green-50"
         >
           Mastered
         </button>
